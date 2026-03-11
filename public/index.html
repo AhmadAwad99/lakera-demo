@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lakera Guard Demo</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Lakera Guard Prompt Injection Demo</h1>
+      <p class="subtitle">
+        Demo showing how Lakera Guard screens user prompts before OpenAI inference.
+      </p>
+
+      <div class="actions">
+        <button onclick="fillNormal()">Try safe prompt</button>
+        <button onclick="fillAttack()">Try injection prompt</button>
+      </div>
+
+      <div id="chat"></div>
+
+      <form id="chatForm">
+        <textarea id="message" rows="4" placeholder="Type your prompt..."></textarea>
+        <button type="submit">Send</button>
+      </form>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
