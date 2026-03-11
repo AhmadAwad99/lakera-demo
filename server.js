@@ -47,38 +47,54 @@ async function checkLakera(prompt) {
 
 app.post("/api/chat", async (req, res) => {
   try {
-    const prompt = req.body.message;
+    const prompt = req.body?.message?.trim();
 
     if (!prompt) {
-      return res.status(400).json({ error: "Prompt required" });
+      return res.status(400).json({
+        blocked: false,
+        assistant: "Prompt required.",
+        lakera: null,
+      });
     }
 
     const lakeraResult = await checkLakera(prompt);
-
-    const flagged = lakeraResult?.flagged || false;
+    const flagged = lakeraResult?.flagged === true;
 
     if (flagged) {
       return res.json({
         blocked: true,
-        message: "Prompt blocked: Lakera Guard detected a prompt injection attempt.",
+        assistant:
+          "Your message was blocked because Lakera Guard detected a possible prompt injection attempt.",
         lakera: lakeraResult,
       });
     }
 
     const response = await openai.responses.create({
       model: "gpt-4.1-mini",
-      input: prompt,
+      input: [
+        {
+          role: "system",
+          content: "You are a helpful assistant. Keep answers brief and clear.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
     });
 
-    res.json({
+    return res.json({
       blocked: false,
-      reply: response.output_text,
+      assistant: response.output_text || "No model response returned.",
       lakera: lakeraResult,
     });
-
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({
+      blocked: false,
+      assistant: `Server error: ${err.message}`,
+      lakera: null,
+    });
   }
 });
 
