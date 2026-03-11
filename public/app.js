@@ -11,7 +11,7 @@ function addBubble(role, text, extra = "") {
 }
 
 function fillNormal() {
-  messageInput.value = "Explain prompt injection in simple terms.";
+  messageInput.value = "How is the weather in Dubai today";
 }
 
 function fillAttack() {
