@@ -58,10 +58,13 @@ body: JSON.stringify({
 
     const data = await res.json();
 
-    const lakeraStatus = data.blocked
-      ? `<div class="badge blocked">Lakera: Injection suspected</div>`
-      : `<div class="badge safe">Lakera: Safe</div>`;
+    let lakeraStatus = "";
 
+if (lakeraEnabled) {
+  lakeraStatus = data.blocked
+    ? `<div class="badge blocked">Lakera: Injection suspected</div>`
+    : `<div class="badge safe">Lakera: Safe</div>`;
+}
     addBubble("assistant", data.assistant || data.error || "No response", lakeraStatus);
   } catch (err) {
     addBubble("assistant", "Something went wrong.");
