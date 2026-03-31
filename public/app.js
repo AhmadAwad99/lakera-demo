@@ -2,6 +2,24 @@ const chat = document.getElementById("chat");
 const form = document.getElementById("chatForm");
 const messageInput = document.getElementById("message");
 
+let lakeraEnabled = true;
+
+const toggleBtn = document.getElementById("lakeraToggle");
+
+toggleBtn.addEventListener("click", () => {
+  lakeraEnabled = !lakeraEnabled;
+
+  if (lakeraEnabled) {
+    toggleBtn.textContent = "ON";
+    toggleBtn.classList.remove("inactive");
+    toggleBtn.classList.add("active");
+  } else {
+    toggleBtn.textContent = "OFF";
+    toggleBtn.classList.remove("active");
+    toggleBtn.classList.add("inactive");
+  }
+});
+
 function addBubble(role, text, extra = "") {
   const div = document.createElement("div");
   div.className = `bubble ${role}`;
@@ -33,8 +51,10 @@ form.addEventListener("submit", async (e) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message }),
-    });
+body: JSON.stringify({ 
+  message,
+  lakeraEnabled
+}),    });
 
     const data = await res.json();
 

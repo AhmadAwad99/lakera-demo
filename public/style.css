@@ -8,7 +8,31 @@ body {
   padding: 32px 16px;
   color: #1f2937;
 }
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
 
+.toggle {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.toggle.active {
+  background: #10b981;
+  color: white;
+}
+
+.toggle.inactive {
+  background: #e5e7eb;
+  color: #555;
+}
 .container {
   max-width: 860px;
   margin: 0 auto;

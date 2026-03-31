@@ -47,7 +47,8 @@ async function checkLakera(prompt) {
 
 app.post("/api/chat", async (req, res) => {
   try {
-    const prompt = req.body?.message?.trim();
+   const prompt = req.body?.message?.trim();
+const lakeraEnabled = req.body?.lakeraEnabled ?? true;
 
     if (!prompt) {
       return res.status(400).json({
@@ -57,16 +58,20 @@ app.post("/api/chat", async (req, res) => {
       });
     }
 
-    const lakeraResult = await checkLakera(prompt);
-    const flagged = lakeraResult?.flagged === true;
+   let lakeraResult = null;
 
-    if (flagged) {
-      return res.json({
-        blocked: true,
-        assistant:
-          "Your message was blocked because Lakera Guard detected a possible prompt injection attempt.",
-        lakera: lakeraResult,
-      });
+if (lakeraEnabled) {
+  lakeraResult = await checkLakera(prompt);
+  const flagged = lakeraResult?.flagged === true;
+
+  if (flagged) {
+    return res.json({
+      blocked: true,
+      assistant: "⚠ Blocked by Lakera Guard (prompt injection detected)",
+      lakera: lakeraResult,
+    });
+  }
+}
     }
 
     const response = await openai.responses.create({
