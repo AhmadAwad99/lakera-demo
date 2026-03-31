@@ -9,16 +9,20 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+// OpenAI setup
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Lakera check
 async function checkLakera(prompt) {
   const response = await fetch("https://api.lakera.ai/v2/guard", {
     method: "POST",
@@ -45,10 +49,11 @@ async function checkLakera(prompt) {
   return response.json();
 }
 
+// Chat endpoint
 app.post("/api/chat", async (req, res) => {
   try {
-   const prompt = req.body?.message?.trim();
-const lakeraEnabled = req.body?.lakeraEnabled ?? true;
+    const prompt = req.body?.message?.trim();
+    const lakeraEnabled = req.body?.lakeraEnabled ?? true;
 
     if (!prompt) {
       return res.status(400).json({
@@ -58,22 +63,26 @@ const lakeraEnabled = req.body?.lakeraEnabled ?? true;
       });
     }
 
-   let lakeraResult = null;
+    let lakeraResult = null;
 
-if (lakeraEnabled) {
-  lakeraResult = await checkLakera(prompt);
-  const flagged = lakeraResult?.flagged === true;
+    // 🔒 Lakera Guard
+    if (lakeraEnabled) {
+      lakeraResult = await checkLakera(prompt);
 
-  if (flagged) {
-    return res.json({
-      blocked: true,
-      assistant: "⚠ Blocked by Lakera Guard (prompt injection detected)",
-      lakera: lakeraResult,
-    });
-  }
-}
+      const flagged =
+        lakeraResult?.flagged === true ||
+        lakeraResult?.results?.some((r) => r.flagged);
+
+      if (flagged) {
+        return res.json({
+          blocked: true,
+          assistant: "⚠ Blocked by Lakera Guard (prompt injection detected)",
+          lakera: lakeraResult,
+        });
+      }
     }
 
+    // 🤖 OpenAI call
     const response = await openai.responses.create({
       model: "gpt-4.1-mini",
       input: [
